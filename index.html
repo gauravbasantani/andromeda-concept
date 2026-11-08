@@ -61,9 +61,18 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 .card svg{width:100%;height:auto;display:block}
 .limit{display:none}
 .on-b .limit{display:inline}
-.plan{margin:0;font-size:2.35cqw;line-height:1.35;display:none}
-.plan small{display:block;color:var(--screen-dim);font-size:2cqw;margin-top:.8cqw}
+.now p,.plan p{margin:.4cqw 0 0;font-size:2.35cqw;line-height:1.35}
+.now p{font-weight:650}
+.plan{display:none;border-top:1px solid var(--edge);padding-top:1.4cqw}
+.plan small{display:block;color:var(--screen-dim);font-size:2cqw;margin-top:.6cqw}
 .on-c .plan{display:block}
+.flash{animation:flash 1.2s ease}
+@keyframes flash{0%{background:#3d8bff40}100%{background:transparent}}
+.again{all:unset;cursor:pointer;text-align:center;font-size:2.2cqw;color:var(--blue)}
+.again:focus-visible{outline:2px solid var(--blue)}
+.again[hidden]{display:none}
+.go[disabled]{background:#24324f;color:var(--screen-dim);cursor:default}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}}
 .go{all:unset;position:relative;overflow:hidden;cursor:pointer;text-align:center;background:var(--blue);color:#fff;border-radius:1.6cqw;
   font-weight:650;font-size:2.6cqw;min-height:8cqw;display:grid;place-items:center;margin-top:auto}
 .go:focus-visible{outline:3px solid #fff;outline-offset:2px}
@@ -128,11 +137,11 @@ footer a{color:var(--ink)}
       <div class="screen on-a on-b on-c" id="screen">
         <div class="top">
           <button class="abort" id="abort">Abort</button>
-          <div class="task">Enucleate <span>left lobe</span></div>
+          <div class="task">Enucleate <span id="barSide">left lobe</span></div>
         </div>
         <div class="view">
           <canvas id="cam" aria-label="Live camera view from the scope"></canvas>
-          <div class="readout" id="readout">Contact <b id="word">light</b> at 2 o'clock</div>
+          <div class="readout" id="readout">Contact <b id="word">light</b> at <span id="rClock">2 o'clock</span></div>
           <div class="stopped">Stopped. Robot is holding still.</div>
         </div>
         <div class="side">
@@ -140,19 +149,21 @@ footer a{color:var(--ink)}
             <h3>Map</h3>
             <svg viewBox="0 0 200 150" style="max-height:30cqw" aria-label="Map of the prostate showing your position">
               <path d="M100 12 C 58 14 18 40 16 78 C 15 112 56 134 100 134 C 144 134 185 112 184 78 C 182 40 142 14 100 12 Z" fill="#3d8bff14" stroke="#3d8bff60"/>
-              <path d="M100 124 C 72 122 44 108 40 84 C 37 62 52 44 74 36" fill="none" stroke="#3fc29a" stroke-width="4" stroke-linecap="round"/>
-              <path d="M74 36 C 86 31 96 29 100 29" fill="none" stroke="#3d8bff" stroke-width="3" stroke-dasharray="5 6"/>
-              <circle cx="74" cy="36" r="10" fill="#3fc29a33"/><circle cx="74" cy="36" r="5" fill="#3fc29a"/>
+              <path id="track" d="M100 124 C 72 122 44 108 40 84 C 37 62 52 44 74 36 C 86 31 96 29 100 29 C 104 29 114 31 126 36 C 148 44 163 62 160 84 C 156 108 128 122 100 124" fill="none" stroke="#3d8bff22" stroke-width="3"/>
+              <path id="doneP" d="M100 124 C 72 122 44 108 40 84 C 37 62 52 44 74 36 C 86 31 96 29 100 29 C 104 29 114 31 126 36 C 148 44 163 62 160 84 C 156 108 128 122 100 124" fill="none" stroke="#3fc29a" stroke-width="4" stroke-linecap="round"/>
+              <path id="nextP" d="M100 124 C 72 122 44 108 40 84 C 37 62 52 44 74 36 C 86 31 96 29 100 29 C 104 29 114 31 126 36 C 148 44 163 62 160 84 C 156 108 128 122 100 124" fill="none" stroke="#3d8bff" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+              <g id="dot"><circle r="10" fill="#3fc29a33"/><circle r="5" fill="#3fc29a"/></g>
               <g class="limit">
                 <line x1="50" y1="144" x2="150" y2="144" stroke="#ef5b5b" stroke-width="4" stroke-linecap="round"/>
                 <text x="100" y="140" fill="#ff9a9a" font-size="11" text-anchor="middle" font-family="Instrument Sans, sans-serif">Sphincter limit 9 mm (example)</text>
               </g>
             </svg>
           </div>
-          <div class="card">
-            <h3>Next task</h3>
-            <p class="plan">Continue along the left lobe toward 12 o'clock, about 3 mm (example).<small>Stays clear of the sphincter limit.</small></p>
+          <div class="card tasks">
+            <div class="now"><h3>Current task</h3><p id="nowTxt">Left lobe, at 2 o'clock</p></div>
+            <div class="plan"><h3>Next task</h3><p id="nextTxt">Continue along the left lobe toward 12 o'clock, about 3 mm (example).</p><small id="whyTxt">Stays clear of the sphincter limit.</small></div>
             <button class="go" id="go"><div class="fill" id="fill"></div><span id="goTxt">Hold for Next task</span></button>
+            <button class="again" id="again" hidden>Start again</button>
           </div>
         </div>
       </div>
@@ -247,7 +258,7 @@ footer a{color:var(--ink)}
 
   // switches
   var sw=document.querySelectorAll('.switch');
-  function setIdea(k,on){screen.classList.toggle('on-'+k,on);document.querySelector('.switch[data-k="'+k+'"]').setAttribute('aria-checked',on);syncGo();}
+  function setIdea(k,on){screen.classList.toggle('on-'+k,on);document.querySelector('.switch[data-k="'+k+'"]').setAttribute('aria-checked',on);if(typeof show==='function'&&steps)show(false);}
   sw.forEach(function(b){b.addEventListener('click',function(){setIdea(b.dataset.k,b.getAttribute('aria-checked')!=='true');});});
   document.getElementById('allOff').onclick=function(){['a','b','c'].forEach(function(k){setIdea(k,false);});};
   document.getElementById('allOn').onclick=function(){['a','b','c'].forEach(function(k){setIdea(k,true);});};
@@ -255,9 +266,37 @@ footer a{color:var(--ink)}
   // next task: tap when idea C is off, hold when on
   var go=document.getElementById('go'),fill=document.getElementById('fill'),goTxt=document.getElementById('goTxt'),iv=null,start=0,moving=false;
   function holdMode(){return screen.classList.contains('on-c');}
-  function syncGo(){if(!moving&&!stopped)goTxt.textContent=holdMode()?'Hold for Next task':'Next task';}
-  function run(){moving=true;goTxt.textContent='Robot moving';setTimeout(function(){moving=false;syncGo();},2200);}
-  function begin(e){if(stopped||moving)return;if(!holdMode()){run();return;}e.preventDefault();start=performance.now();
+  var steps=[
+    {side:'left lobe', now:"Left lobe, at 2 o'clock", clock:"2 o'clock", at:.40, next:"Continue along the left lobe toward 12 o'clock, about 3 mm (example).", why:'Stays clear of the sphincter limit.'},
+    {side:'left lobe', now:"Left lobe, at 12 o'clock", clock:"12 o'clock", at:.50, next:"Cross to the right lobe at 12 o'clock.", why:'Left lobe is free. Contact stayed light.'},
+    {side:'right lobe', now:"Right lobe, at 12 o'clock", clock:"12 o'clock", at:.56, next:"Continue along the right lobe toward 3 o'clock.", why:'Same plane as the left side.'},
+    {side:'right lobe', now:"Right lobe, at 3 o'clock", clock:"3 o'clock", at:.74, next:'Finish the right lobe near the apex.', why:'Slow down here, the sphincter limit is closer.'},
+    {side:'right lobe', now:'Right lobe, near the apex', clock:"5 o'clock", at:.92, next:'Check for bleeding before moving on.', why:'Both lobes free after this step.'},
+    {side:'done', now:'Both lobes free. Check for bleeding.', clock:"6 o'clock", at:1, next:null, why:''}
+  ];
+  var si=0,cur=steps[0].at;
+  var track=document.getElementById('track'),doneP=document.getElementById('doneP'),nextP=document.getElementById('nextP'),dot=document.getElementById('dot');
+  var L=track.getTotalLength();
+  function paintMap(a,b){doneP.setAttribute('stroke-dasharray',(L*a)+' '+L);
+    var seg=Math.max(0,(b-a))*L; nextP.setAttribute('stroke-dasharray','0 '+(L*a)+' '+seg+' '+L); nextP.style.display=(screen.classList.contains('on-c')&&seg>0)?'':'none';
+    var pt=track.getPointAtLength(L*Math.min(.999,a));dot.setAttribute('transform','translate('+pt.x+','+pt.y+')');}
+  function show(flash){var s=steps[si],n=steps[si+1];
+    document.getElementById('nowTxt').textContent=s.now;
+    document.getElementById('barSide').textContent=s.side==='done'?'done':s.side;
+    document.getElementById('rClock').textContent=s.clock;
+    document.getElementById('nextTxt').textContent=s.next||'';
+    document.getElementById('whyTxt').textContent=s.why;
+    document.querySelector('.plan').style.visibility=s.next?'':'hidden';
+    document.getElementById('again').hidden=!!s.next;
+    go.disabled=!s.next;
+    paintMap(s.at,n?n.at:s.at); syncGo();
+    if(flash){var c=document.querySelector('.tasks');c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');}}
+  function syncGo(){if(moving||stopped)return; if(!steps[si].next){goTxt.textContent='All tasks done';return;} goTxt.textContent=holdMode()?'Hold for Next task':'Next task';}
+  function run(){moving=true;goTxt.textContent='Robot moving';var from=steps[si].at,to=steps[si+1].at,st=performance.now();
+    (function anim(){var k=Math.min(1,(performance.now()-st)/1800);if(stopped){moving=false;return;}paintMap(from+(to-from)*k,to);
+      if(k<1)requestAnimationFrame(anim);else{moving=false;si++;show(true);}})();}
+  document.getElementById('again').onclick=function(){si=0;show(true);};
+  function begin(e){if(stopped||moving||!steps[si].next)return;if(!holdMode()){run();return;}e.preventDefault();start=performance.now();
     iv=setInterval(function(){var k=Math.min(1,(performance.now()-start)/1000);fill.style.width=(k*100)+'%';if(k>=1)end(true);},16);}
   function end(ok){if(!iv)return;clearInterval(iv);iv=null;fill.style.width='0';if(ok)run();}
   go.addEventListener('pointerdown',begin);
@@ -265,8 +304,9 @@ footer a{color:var(--ink)}
   go.addEventListener('keydown',function(e){if((e.key===' '||e.key==='Enter')&&!iv&&!e.repeat)begin(e);});
   go.addEventListener('keyup',function(e){if(e.key===' '||e.key==='Enter')end(false);});
 
+  show(false);
   var abort=document.getElementById('abort');
-  abort.onclick=function(){stopped=!stopped;moving=false;screen.classList.toggle('is-stopped',stopped);abort.textContent=stopped?'Resume':'Abort';goTxt.textContent=stopped?'Stopped':(holdMode()?'Hold for Next task':'Next task');};
+  abort.onclick=function(){stopped=!stopped;moving=false;screen.classList.toggle('is-stopped',stopped);abort.textContent=stopped?'Resume':'Abort';if(stopped)goTxt.textContent='Stopped';else{moving=false;show(false);}};
 })();
 </script>
 </body>
