@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Andromeda iPad Concept · Gaurav Basantani</title>
+<meta name="description" content="Three small ideas for Andromeda Surgical's iPad screen, with a simple interactive prototype. An unofficial concept by Gaurav Basantani.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@85..100,400..700&display=swap" rel="stylesheet">
+<style>
+/* Plan: the prototype is the hero. Page in a cool surgical steel-blue, device in Andromeda's own navy.
+   One typeface. Ideas are switches (not numbered: they are independent, not a sequence). */
+:root{
+  --page:#e9eef2;      /* steel paper */
+  --ink:#122033;       /* text */
+  --soft:#536475;      /* secondary text */
+  --line:#cfd8e0;
+  --navy:#0a1222;      /* device, matches their screen */
+  --navy2:#111b31;
+  --edge:#253250;
+  --screen-text:#e4eaf5;
+  --screen-dim:#8b97ae;
+  --blue:#3d8bff;      /* their accent */
+  --ok:#3fc29a; --warn:#f2a93b; --bad:#ef5b5b;
+  --font:"Instrument Sans",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.5;
+  padding:clamp(24px,5vw,56px) max(18px,env(safe-area-inset-right,0px)) 64px max(18px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+h1{font-size:clamp(30px,5vw,52px);font-weight:650;font-stretch:88%;line-height:1.02;letter-spacing:-.02em;margin:0;max-width:16ch;text-wrap:balance}
+.intro{display:grid;gap:10px;max-width:60ch}
+.intro p{margin:0;color:var(--soft);font-size:18px}
+.intro p:first-child{color:var(--ink)}
+
+/* layout: prototype + controls */
+.lab{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px;align-items:start}
+@media (max-width:900px){.lab{grid-template-columns:1fr}}
+
+/* device */
+.device{background:#191c21;border-radius:clamp(18px,3vw,34px);padding:clamp(8px,1.4vw,14px)}
+.screen{background:var(--navy);color:var(--screen-text);border-radius:clamp(12px,2vw,22px);aspect-ratio:4/3;position:relative;overflow:hidden;
+  container-type:inline-size;display:grid;grid-template-columns:1fr 34%;grid-template-rows:12% 1fr;gap:2.4cqw;padding:2.4cqw}
+.top{grid-column:1/3;display:flex;align-items:center;justify-content:space-between}
+.abort{all:unset;cursor:pointer;font-size:2.5cqw;font-weight:600;color:#ff9a9a;background:#2a1018;border:1px solid #5d2531;border-radius:1.6cqw;padding:1.3cqw 2.6cqw;min-height:5cqw;display:flex;align-items:center}
+.abort:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.task{font-size:2.6cqw;font-weight:600}
+.task span{color:var(--screen-dim);font-weight:500}
+.view{position:relative;background:var(--navy2);border:1px solid var(--edge);border-radius:2cqw;min-height:0}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.readout{position:absolute;left:2cqw;bottom:2cqw;font-size:2.3cqw;background:#0a1222e6;border:1px solid var(--edge);border-radius:1.4cqw;padding:1cqw 1.8cqw;display:none}
+.readout b{font-weight:650}
+.on-a .readout{display:block}
+.stopped{position:absolute;left:50%;top:2cqw;transform:translateX(-50%);background:var(--bad);color:#2a0505;font-weight:700;font-size:2.4cqw;border-radius:1.4cqw;padding:1cqw 2.4cqw;display:none;white-space:nowrap}
+.is-stopped .stopped{display:block}
+.side{display:grid;grid-template-rows:auto 1fr;gap:2.2cqw;min-height:0}
+.card{background:var(--navy2);border:1px solid var(--edge);border-radius:2cqw;padding:2cqw;display:grid;gap:1.2cqw;align-content:start}
+.card h3{margin:0;font-size:2.2cqw;font-weight:600;color:var(--screen-dim)}
+.card svg{width:100%;height:auto;display:block}
+.limit{display:none}
+.on-b .limit{display:inline}
+.plan{margin:0;font-size:2.35cqw;line-height:1.35;display:none}
+.plan small{display:block;color:var(--screen-dim);font-size:2cqw;margin-top:.8cqw}
+.on-c .plan{display:block}
+.go{all:unset;position:relative;overflow:hidden;cursor:pointer;text-align:center;background:var(--blue);color:#fff;border-radius:1.6cqw;
+  font-weight:650;font-size:2.6cqw;min-height:8cqw;display:grid;place-items:center;margin-top:auto}
+.go:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.go .fill{position:absolute;inset:0 auto 0 0;width:0;background:#ffffff45}
+.go span{position:relative}
+.hint{font-size:1.9cqw;color:var(--screen-dim);text-align:center;display:none}
+.on-c .hint{display:block}
+
+/* controls */
+.controls{display:grid;gap:12px}
+.controls h2{margin:0 0 2px;font-size:15px;font-weight:600;color:var(--soft)}
+.idea{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:8px}
+.idea-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.idea h3{margin:0;font-size:18px;font-weight:650;line-height:1.25}
+.idea p{margin:0;font-size:15px;color:var(--soft)}
+.switch{all:unset;flex:none;cursor:pointer;width:52px;height:30px;border-radius:15px;background:#c3cdd6;position:relative;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px #0003}
+.switch[aria-checked="true"]{background:var(--ink)}
+.switch[aria-checked="true"]::after{transform:translateX(22px)}
+.switch:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.slider{display:grid;gap:6px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.slider label{font-size:15px;font-weight:600}
+.slider .row{display:flex;justify-content:space-between;font-size:13px;color:var(--soft)}
+input[type=range]{width:100%;accent-color:var(--ink);height:28px}
+.both{display:flex;gap:8px}
+.both button{all:unset;cursor:pointer;flex:1;text-align:center;font-size:14px;font-weight:600;padding:10px;border-radius:10px;border:1px solid var(--line);background:#fff}
+.both button:focus-visible{outline:3px solid var(--blue)}
+
+/* surgeon decisions */
+.why{display:grid;gap:14px}
+.why h2{margin:0;font-size:26px;font-weight:650;font-stretch:90%;letter-spacing:-.01em}
+.why ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px}
+.why li{padding-top:10px;border-top:1px solid var(--line)}
+.why li b{display:block;font-size:16.5px;margin-bottom:2px}
+.why li span{font-size:15px;color:var(--soft)}
+@media (max-width:700px){.why ul{grid-template-columns:1fr}}
+.ask{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:8px;max-width:760px}
+.ask h2{margin:0;font-size:20px;font-weight:650}
+.ask ul{margin:0;padding-left:20px;color:var(--soft);font-size:15.5px;display:grid;gap:4px}
+footer{border-top:1px solid var(--line);padding-top:16px;font-size:14px;color:var(--soft);display:grid;gap:6px;max-width:760px}
+footer a{color:var(--ink)}
+@media (prefers-color-scheme:dark){
+  :root{--page:#0f1419;--ink:#e6ebf0;--soft:#9aa7b4;--line:#27313b}
+  .idea,.slider,.both button,.ask{background:#161d24}
+  .switch{background:#3a4652}
+  .switch[aria-checked="true"]{background:#e6ebf0}
+  .switch[aria-checked="true"]::after{background:#0f1419}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="intro">
+    <h1>Three small ideas for Andromeda's iPad screen</h1>
+    <p>I studied the iPad screens on your website. They already get the big things right, so these are small additions to what is there, not a redesign.</p>
+    <p>Turn each idea on and off to compare, and drag the pressure slider to see the screen react.</p>
+  </header>
+
+  <section class="lab" aria-label="Interactive prototype">
+    <div class="device">
+      <div class="screen on-a on-b on-c" id="screen">
+        <div class="top">
+          <button class="abort" id="abort">Abort</button>
+          <div class="task">Enucleate <span>left lobe</span></div>
+        </div>
+        <div class="view">
+          <canvas id="cam" aria-label="Live camera view from the scope"></canvas>
+          <div class="readout" id="readout">Contact <b id="word">light</b> at 2 o'clock</div>
+          <div class="stopped">Stopped. Robot is holding still.</div>
+        </div>
+        <div class="side">
+          <div class="card">
+            <h3>Map</h3>
+            <svg viewBox="0 0 200 150" style="max-height:30cqw" aria-label="Map of the prostate showing your position">
+              <path d="M100 12 C 58 14 18 40 16 78 C 15 112 56 134 100 134 C 144 134 185 112 184 78 C 182 40 142 14 100 12 Z" fill="#3d8bff14" stroke="#3d8bff60"/>
+              <path d="M100 124 C 72 122 44 108 40 84 C 37 62 52 44 74 36" fill="none" stroke="#3fc29a" stroke-width="4" stroke-linecap="round"/>
+              <path d="M74 36 C 86 31 96 29 100 29" fill="none" stroke="#3d8bff" stroke-width="3" stroke-dasharray="5 6"/>
+              <circle cx="74" cy="36" r="10" fill="#3fc29a33"/><circle cx="74" cy="36" r="5" fill="#3fc29a"/>
+              <g class="limit">
+                <line x1="50" y1="144" x2="150" y2="144" stroke="#ef5b5b" stroke-width="4" stroke-linecap="round"/>
+                <text x="100" y="140" fill="#ff9a9a" font-size="11" text-anchor="middle" font-family="Instrument Sans, sans-serif">Sphincter limit, about 9 mm</text>
+              </g>
+            </svg>
+          </div>
+          <div class="card">
+            <h3>Next task</h3>
+            <p class="plan">Continue along the left lobe toward 12 o'clock, about 3 mm.<small>Stays clear of the sphincter limit.</small></p>
+            <button class="go" id="go"><div class="fill" id="fill"></div><span id="goTxt">Hold for Next task</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <h2>Ideas</h2>
+      <div class="idea">
+        <div class="idea-head"><h3>Show pressure on the camera rim</h3><button class="switch" role="switch" aria-checked="true" data-k="a" aria-label="Show pressure on the camera rim"></button></div>
+        <p>Your camera view already uses a clock face. If the robot can sense contact, the rim shows where and how hard the tool touches, in color and in words.</p>
+      </div>
+      <div class="idea">
+        <div class="idea-head"><h3>Draw the sphincter limit on the map</h3><button class="switch" role="switch" aria-checked="true" data-k="b" aria-label="Draw the sphincter limit on the map"></button></div>
+        <p>EUS Block protects the external sphincter, but it lives in settings. On the map, the surgeon can see the limit coming.</p>
+      </div>
+      <div class="idea">
+        <div class="idea-head"><h3>Say what Next task will do</h3><button class="switch" role="switch" aria-checked="true" data-k="c" aria-label="Say what Next task will do"></button></div>
+        <p>One plain sentence before the robot moves, and a one-second hold so it never starts by accident. Abort stays where it is.</p>
+      </div>
+      <div class="slider">
+        <label for="pressure">Tool pressure</label>
+        <input type="range" id="pressure" min="0" max="100" value="25">
+        <div class="row"><span>Light</span><span>Firm</span><span>Too firm</span></div>
+      </div>
+      <div class="both"><button id="allOff">Your screen today</button><button id="allOn">With all three</button></div>
+    </div>
+  </section>
+
+  <section class="why">
+    <h2>Decisions made for surgeons in the room</h2>
+    <ul>
+      <li><b>Eyes stay on the camera</b><span>Pressure lives on the rim of the view the surgeon is already watching, not in a panel off to the side.</span></li>
+      <li><b>Never color alone</b><span>Every color also has a word (light, firm, too firm) and a thicker line, for glare, distance and color blindness.</span></li>
+      <li><b>Readable from a step back</b><span>Few words, large type, and the same clock language surgeons already use to orient.</span></li>
+      <li><b>Big targets for gloved hands</b><span>The buttons that matter are large, and nothing important sits in a corner that is easy to miss.</span></li>
+      <li><b>No surprises</b><span>The robot says what it will do before it moves, and a one-second hold means a brushed screen cannot start it.</span></li>
+      <li><b>Stopping is instant</b><span>Abort stays one tap, always in the same place. Starting takes intent, stopping never does.</span></li>
+    </ul>
+  </section>
+
+  <section class="ask">
+    <h2>What I would ask surgeons first</h2>
+    <ul>
+      <li>Should pressure show all the time, or only when contact gets firm?</li>
+      <li>Is the external sphincter the main limit you watch for, or are there others?</li>
+      <li>Is a one-second hold quick enough in the middle of a case?</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>An unofficial concept by Gaurav Basantani, product designer. It is based only on what Andromeda Surgical shares publicly and is not affiliated with Andromeda. The anatomy, distances and wording are simplified examples, not medical guidance.</p>
+    <p><a href="https://gauravbasantani.com">gauravbasantani.com</a> · gbasanta@asu.edu</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var screen=document.getElementById('screen'),cv=document.getElementById('cam'),ctx=cv.getContext('2d');
+  var slider=document.getElementById('pressure'),word=document.getElementById('word');
+  var p=.25,stopped=false,t=0;
+  function size(){var r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);}
+  if('ResizeObserver' in window) new ResizeObserver(size).observe(cv); size();
+  function col(v){return v>.75?'#ef5b5b':v>.45?'#f2a93b':'#3fc29a';}
+  function name(v){return v>.75?'too firm':v>.45?'firm':'light';}
+
+  function draw(){
+    var w=cv.clientWidth,h=cv.clientHeight,cx=w/2,cy=h/2,R=Math.min(w,h)*.36,a=-Math.PI*.33;
+    ctx.clearRect(0,0,w,h);
+    ctx.beginPath();ctx.arc(cx,cy,R+R*.1,0,Math.PI*2);ctx.strokeStyle='#1d2843';ctx.lineWidth=R*.12;ctx.stroke();
+    ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.clip();
+    var g=ctx.createRadialGradient(cx-R*.15,cy-R*.2,R*.05,cx,cy,R);
+    g.addColorStop(0,'#e7a8a1');g.addColorStop(.55,'#c1747a');g.addColorStop(1,'#6b2b36');
+    ctx.fillStyle=g;ctx.fillRect(cx-R,cy-R,R*2,R*2);
+    ctx.globalAlpha=.16;ctx.strokeStyle='#fff';ctx.lineWidth=1;
+    for(var i=0;i<7;i++){ctx.beginPath();ctx.moveTo(cx-R+i*R*.3,cy-R);ctx.quadraticCurveTo(cx-R*.2+i*R*.15,cy,cx-R*.6+i*R*.3,cy+R);ctx.stroke();}
+    ctx.globalAlpha=1;ctx.restore();
+    ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=1.3;var c=R*.12;
+    ctx.beginPath();ctx.moveTo(cx-c,cy);ctx.lineTo(cx+c,cy);ctx.moveTo(cx,cy-c);ctx.lineTo(cx,cy+c);ctx.stroke();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(cx-R*.05,cy-R-1);ctx.lineTo(cx+R*.05,cy-R-1);ctx.lineTo(cx,cy-R+R*.07);ctx.closePath();ctx.fill();
+    if(screen.classList.contains('on-a') && !stopped){
+      var pulse=(!reduce && p>.45)?Math.sin(t*.01)*R*.012:0;
+      var span=.4+p*.5;
+      ctx.beginPath();ctx.arc(cx,cy,R+R*.1,a-span/2,a+span/2);ctx.strokeStyle=col(p);ctx.lineWidth=R*(.05+p*.07)+pulse;ctx.lineCap='round';ctx.stroke();ctx.lineCap='butt';
+    }
+  }
+  function loop(){t+=16;draw();requestAnimationFrame(loop);}
+  requestAnimationFrame(loop);
+
+  slider.addEventListener('input',function(){p=slider.value/100;word.textContent=name(p);word.style.color=col(p);});
+  word.style.color=col(p);
+
+  // switches
+  var sw=document.querySelectorAll('.switch');
+  function setIdea(k,on){screen.classList.toggle('on-'+k,on);document.querySelector('.switch[data-k="'+k+'"]').setAttribute('aria-checked',on);syncGo();}
+  sw.forEach(function(b){b.addEventListener('click',function(){setIdea(b.dataset.k,b.getAttribute('aria-checked')!=='true');});});
+  document.getElementById('allOff').onclick=function(){['a','b','c'].forEach(function(k){setIdea(k,false);});};
+  document.getElementById('allOn').onclick=function(){['a','b','c'].forEach(function(k){setIdea(k,true);});};
+
+  // next task: tap when idea C is off, hold when on
+  var go=document.getElementById('go'),fill=document.getElementById('fill'),goTxt=document.getElementById('goTxt'),iv=null,start=0,moving=false;
+  function holdMode(){return screen.classList.contains('on-c');}
+  function syncGo(){if(!moving&&!stopped)goTxt.textContent=holdMode()?'Hold for Next task':'Next task';}
+  function run(){moving=true;goTxt.textContent='Robot moving';setTimeout(function(){moving=false;syncGo();},2200);}
+  function begin(e){if(stopped||moving)return;if(!holdMode()){run();return;}e.preventDefault();start=performance.now();
+    iv=setInterval(function(){var k=Math.min(1,(performance.now()-start)/1000);fill.style.width=(k*100)+'%';if(k>=1)end(true);},16);}
+  function end(ok){if(!iv)return;clearInterval(iv);iv=null;fill.style.width='0';if(ok)run();}
+  go.addEventListener('pointerdown',begin);
+  ['pointerup','pointerleave','pointercancel'].forEach(function(ev){go.addEventListener(ev,function(){end(false);});});
+  go.addEventListener('keydown',function(e){if((e.key===' '||e.key==='Enter')&&!iv&&!e.repeat)begin(e);});
+  go.addEventListener('keyup',function(e){if(e.key===' '||e.key==='Enter')end(false);});
+
+  var abort=document.getElementById('abort');
+  abort.onclick=function(){stopped=!stopped;moving=false;screen.classList.toggle('is-stopped',stopped);abort.textContent=stopped?'Resume':'Abort';goTxt.textContent=stopped?'Stopped':(holdMode()?'Hold for Next task':'Next task');};
+})();
+</script>
+</body>
+</html>
