@@ -51,9 +51,21 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:650;font-stretch:88%;line-height:1
 .task span{color:var(--screen-dim);font-weight:500}
 .view{position:relative;background:var(--navy2);border:1px solid var(--edge);border-radius:2cqw;min-height:0}
 canvas{position:absolute;inset:0;width:100%;height:100%}
-.readout{position:absolute;left:2cqw;bottom:2cqw;font-size:2.3cqw;background:#0a1222e6;border:1px solid var(--edge);border-radius:1.4cqw;padding:1cqw 1.8cqw;display:none}
+.readout{position:absolute;left:2cqw;bottom:2cqw;background:#0a1222ee;border:1px solid var(--edge);border-radius:1.6cqw;padding:1.1cqw 1.8cqw 1.1cqw 1.4cqw;display:none;align-items:center;gap:1.4cqw}
+.readout .lv{display:flex;align-items:flex-end;gap:.5cqw;height:3.4cqw}
+.readout .lv i{width:1.1cqw;border-radius:.3cqw;background:#ffffff26}
+.readout .lv i:nth-child(1){height:40%}.readout .lv i:nth-child(2){height:70%}.readout .lv i:nth-child(3){height:100%}
+.readout[data-lv="1"] .lv i:nth-child(-n+1){background:#3fc29a}
+.readout[data-lv="2"] .lv i:nth-child(-n+2){background:#f2a93b}
+.readout[data-lv="3"] .lv i{background:#ef5b5b}
+.readout .rt{display:grid;gap:.2cqw}
+.readout .rt b{font-size:2.5cqw;font-weight:700}
+.readout .rt small{font-size:1.9cqw;color:var(--screen-dim)}
+.readout[data-lv="1"] .rt b{color:#3fc29a}.readout[data-lv="2"] .rt b{color:#f2a93b}.readout[data-lv="3"] .rt b{color:#ff7a7a}
+.readout[data-lv="3"]{border-color:#ef5b5b;box-shadow:0 0 0 .4cqw #ef5b5b33}
+.readout[data-lv="3"] #hint{color:#ffb4b4;font-weight:600}
 .readout b{font-weight:650}
-.on-a .readout{display:block}
+.on-a .readout{display:flex}
 .stopped{position:absolute;left:50%;top:2cqw;transform:translateX(-50%);background:var(--bad);color:#2a0505;font-weight:700;font-size:2.4cqw;border-radius:1.4cqw;padding:1cqw 2.4cqw;display:none;white-space:nowrap}
 .is-stopped .stopped{display:block}
 .side{display:grid;grid-template-rows:auto 1fr;gap:2.2cqw;min-height:0}
@@ -160,7 +172,7 @@ footer a{color:var(--ink)}
 }
 
 /* side column, refined (matches the Interfere concept) */
-.controls{display:grid;gap:11px;align-content:start;align-self:center}
+.controls{display:grid;gap:9px;align-content:start;align-self:center}
 .hd{display:grid;gap:8px}
 .by{margin:0;font-size:13px;color:var(--soft);font-weight:500}
 .controls h1{margin:0;font-size:clamp(24px,2.1vw,30px);line-height:1.12;font-weight:650;letter-spacing:-.02em;max-width:none;text-wrap:balance}
@@ -200,6 +212,13 @@ footer a{color:var(--ink)}
   .compare{background:#1d262f}
   .compare button[aria-pressed="true"]{background:#2a3540;color:var(--ink)}
 }
+
+.zones{display:grid;grid-template-columns:45% 30% 25%;gap:3px;margin-top:2px}
+.zones span{border-radius:6px;padding:3px 6px;font-size:12px;font-weight:600;line-height:1.2;color:var(--soft);background:#eef2f5;border-top:3px solid transparent}
+.zones small{font-weight:500;font-size:11px}
+.zones span[data-z="1"]{border-color:#3fc29a}.zones span[data-z="2"]{border-color:#f2a93b}.zones span[data-z="3"]{border-color:#ef5b5b}
+.zones span.on{color:var(--ink);background:#fff;box-shadow:0 0 0 1px var(--line)}
+@media (prefers-color-scheme:dark){.zones span{background:#1d262f}.zones span.on{background:#2a3540}}
 </style>
 </head>
 <body>
@@ -214,7 +233,7 @@ footer a{color:var(--ink)}
         </div>
         <div class="view">
           <canvas id="cam" aria-label="Live camera view from the scope"></canvas>
-          <div class="readout" id="readout">Contact <b id="word">light</b> at <span id="rClock">2 o'clock</span></div>
+          <div class="readout" id="readout" data-lv="1" role="status" aria-live="polite"><span class="lv" aria-hidden="true"><i></i><i></i><i></i></span><span class="rt"><b id="word">Light contact</b><small><span id="hint">Safe to continue</span> · at <span id="rClock">2 o'clock</span></small></span></div>
           <div class="stopped">Stopped. Robot is holding still.</div>
         </div>
         <div class="side">
@@ -248,7 +267,7 @@ footer a{color:var(--ink)}
       <header class="hd">
         <p class="by">Concept by Gaurav Basantani, product designer</p>
         <h1>Three small ideas for Andromeda's iPad screen</h1>
-        <p class="lead">I studied the iPad screens on your website. They already get the big things right, so these are small additions, not a redesign.</p>
+        <p class="lead">I studied the iPad screens on your website. They already get the big things right, so these are small additions, not a redesign. Drag the pressure and hold Next task to try them.</p>
       </header>
 
       <div class="group" role="group" aria-label="Ideas">
@@ -268,7 +287,8 @@ footer a{color:var(--ink)}
 
       <div class="press">
         <div class="press-top"><label for="pressure">Tool pressure</label><span id="pressWord">Light</span></div>
-        <input type="range" id="pressure" min="0" max="100" value="25">
+        <input type="range" id="pressure" min="0" max="100" value="25" aria-describedby="zones">
+        <div class="zones" id="zones" aria-hidden="true"><span data-z="1">Light<br><small>keep going</small></span><span data-z="2">Firm<br><small>go slower</small></span><span data-z="3">Too firm<br><small>ease off</small></span></div>
       </div>
 
       <div class="compare" role="group" aria-label="Compare">
@@ -276,7 +296,6 @@ footer a{color:var(--ink)}
         <button id="allOn" aria-pressed="true">With the ideas</button>
       </div>
 
-      <p class="try">Try it: drag the pressure, then hold Next task.</p>
 
       <footer class="ft">
         <button class="whybtn" id="whyBtn" aria-haspopup="dialog">Why these choices work for surgeons</button>
@@ -293,7 +312,7 @@ footer a{color:var(--ink)}
     <h2 id="whyTitle">Decisions made for surgeons in the room</h2>
     <ul>
       <li><b>Eyes stay on the camera</b><span>Pressure lives on the rim of the view the surgeon is already watching, not in a panel off to the side.</span></li>
-      <li><b>Never color alone</b><span>Every color also has a word (light, firm, too firm) and a thicker line, for glare, distance and color blindness.</span></li>
+      <li><b>Never color alone</b><span>Each level has its own number of bars (1, 2, 3), a word (light, firm, too firm) and an action (keep going, go slower, ease off), so it reads through glare, at a distance and with color blindness.</span></li>
       <li><b>Readable from a step back</b><span>Few words, large type, and the same clock language surgeons already use to orient.</span></li>
       <li><b>Big targets for gloved hands</b><span>The buttons that matter are large, and nothing important sits in a corner that is easy to miss.</span></li>
       <li><b>No surprises</b><span>The robot says what it will do before it moves, and a one-second hold means a brushed screen cannot start it.</span></li>
@@ -350,8 +369,12 @@ footer a{color:var(--ink)}
   requestAnimationFrame(loop);
 
   var pw=document.getElementById('pressWord');function pwSync(){var w=name(p);pw.textContent=w.charAt(0).toUpperCase()+w.slice(1);pw.style.color=col(p)==='#3fc29a'?'#1f8a66':col(p)==='#f2a93b'?'#a8670c':'#c9342c';}
-  slider.addEventListener('input',function(){p=slider.value/100;word.textContent=name(p);word.style.color=col(p);pwSync();});pwSync();
-  word.style.color=col(p);
+  var readout=document.getElementById('readout'),hint=document.getElementById('hint'),zones=document.querySelectorAll('.zones span');
+  function lvSync(){var lv=p>.75?3:p>.45?2:1;readout.dataset.lv=lv;
+    word.textContent=lv===3?'Too firm':lv===2?'Firm contact':'Light contact';
+    hint.textContent=lv===3?'Ease off now':lv===2?'Go slower':'Safe to continue';
+    zones.forEach(function(z){z.classList.toggle('on',+z.dataset.z===lv);});pwSync();}
+  slider.addEventListener('input',function(){p=slider.value/100;lvSync();});lvSync();
 
   // switches
   var sw=document.querySelectorAll('.switch');
