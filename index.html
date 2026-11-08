@@ -224,14 +224,15 @@ footer a{color:var(--ink)}
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var screen=document.getElementById('screen'),cv=document.getElementById('cam'),ctx=cv.getContext('2d');
   var slider=document.getElementById('pressure'),word=document.getElementById('word');
-  var p=.25,stopped=false,t=0;
+  var p=.25,stopped=false,t=0,arcAngle=-Math.PI/2+(2/12)*Math.PI*2,arcTarget=arcAngle;
+  function clockAngle(s){var h=parseInt(s,10)%12;return -Math.PI/2+(h/12)*Math.PI*2;}
   function size(){var r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);}
   if('ResizeObserver' in window) new ResizeObserver(size).observe(cv); size();
   function col(v){return v>.75?'#ef5b5b':v>.45?'#f2a93b':'#3fc29a';}
   function name(v){return v>.75?'too firm':v>.45?'firm':'light';}
 
   function draw(){
-    var w=cv.clientWidth,h=cv.clientHeight,cx=w/2,cy=h/2,R=Math.min(w,h)*.36,a=-Math.PI*.33;
+    var w=cv.clientWidth,h=cv.clientHeight,cx=w/2,cy=h/2,R=Math.min(w,h)*.36,a=arcAngle;
     ctx.clearRect(0,0,w,h);
     ctx.beginPath();ctx.arc(cx,cy,R+R*.1,0,Math.PI*2);ctx.strokeStyle='#1d2843';ctx.lineWidth=R*.12;ctx.stroke();
     ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.clip();
@@ -250,7 +251,7 @@ footer a{color:var(--ink)}
       ctx.beginPath();ctx.arc(cx,cy,R+R*.1,a-span/2,a+span/2);ctx.strokeStyle=col(p);ctx.lineWidth=R*(.05+p*.07)+pulse;ctx.lineCap='round';ctx.stroke();ctx.lineCap='butt';
     }
   }
-  function loop(){t+=16;draw();requestAnimationFrame(loop);}
+  function loop(){t+=16;var d=arcTarget-arcAngle;d=Math.atan2(Math.sin(d),Math.cos(d));arcAngle+=reduce?d:d*.08;draw();requestAnimationFrame(loop);}
   requestAnimationFrame(loop);
 
   slider.addEventListener('input',function(){p=slider.value/100;word.textContent=name(p);word.style.color=col(p);});
@@ -284,6 +285,7 @@ footer a{color:var(--ink)}
     document.getElementById('nowTxt').textContent=s.now;
     document.getElementById('barSide').textContent=s.side==='done'?'done':s.side;
     document.getElementById('rClock').textContent=s.clock;
+    arcTarget=clockAngle(s.clock);
     document.getElementById('nextTxt').textContent=s.next||'';
     document.getElementById('whyTxt').textContent=s.why;
     document.querySelector('.plan').style.visibility=s.next?'':'hidden';
