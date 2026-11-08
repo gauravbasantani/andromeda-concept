@@ -219,6 +219,10 @@ footer a{color:var(--ink)}
 .zones span[data-z="1"]{border-color:#3fc29a}.zones span[data-z="2"]{border-color:#f2a93b}.zones span[data-z="3"]{border-color:#ef5b5b}
 .zones span.on{color:var(--ink);background:#fff;box-shadow:0 0 0 1px var(--line)}
 @media (prefers-color-scheme:dark){.zones span{background:#1d262f}.zones span.on{background:#2a3540}}
+
+.limit-txt{display:none;margin:0;font-size:1.75cqw;white-space:nowrap;color:#ff9a9a;align-items:center;gap:.8cqw}
+.limit-txt .bar-red{width:2.4cqw;height:.5cqw;border-radius:.3cqw;background:#ef5b5b;display:inline-block}
+.on-b .limit-txt{display:flex}
 </style>
 </head>
 <body>
@@ -239,7 +243,7 @@ footer a{color:var(--ink)}
         <div class="side">
           <div class="card">
             <h3>Map</h3>
-            <svg viewBox="0 0 200 150" style="max-height:18cqw" aria-label="Map of the prostate showing your position">
+            <svg viewBox="0 0 200 150" style="max-height:13cqw" aria-label="Map of the prostate showing your position">
               <path d="M100 12 C 58 14 18 40 16 78 C 15 112 56 134 100 134 C 144 134 185 112 184 78 C 182 40 142 14 100 12 Z" fill="#3d8bff14" stroke="#3d8bff60"/>
               <path id="track" d="M100 124 C 72 122 44 108 40 84 C 37 62 52 44 74 36 C 86 31 96 29 100 29 C 104 29 114 31 126 36 C 148 44 163 62 160 84 C 156 108 128 122 100 124" fill="none" stroke="#3d8bff22" stroke-width="3"/>
               <path id="doneP" d="M100 124 C 72 122 44 108 40 84 C 37 62 52 44 74 36 C 86 31 96 29 100 29 C 104 29 114 31 126 36 C 148 44 163 62 160 84 C 156 108 128 122 100 124" fill="none" stroke="#3fc29a" stroke-width="4" stroke-linecap="round"/>
@@ -247,9 +251,9 @@ footer a{color:var(--ink)}
               <g id="dot"><circle r="10" fill="#3fc29a33"/><circle r="5" fill="#3fc29a"/></g>
               <g class="limit">
                 <line x1="50" y1="144" x2="150" y2="144" stroke="#ef5b5b" stroke-width="4" stroke-linecap="round"/>
-                <text x="100" y="140" fill="#ff9a9a" font-size="11" text-anchor="middle" font-family="Instrument Sans, sans-serif">Sphincter limit 9 mm (example)</text>
               </g>
             </svg>
+            <p class="limit-txt"><span class="bar-red"></span>Sphincter limit: 9 mm (example)</p>
           </div>
           <div class="card tasks">
             <div class="now"><h3>Current task</h3><p id="nowTxt">Left lobe, at 2 o'clock</p></div>
@@ -389,9 +393,9 @@ footer a{color:var(--ink)}
   function holdMode(){return screen.classList.contains('on-c');}
   var steps=[
     {side:'left lobe', now:"Left lobe, at 2 o'clock", clock:"2 o'clock", at:.40, next:"Continue toward 12 o'clock, about 3 mm (example).", why:'Stays clear of the sphincter limit.'},
-    {side:'left lobe', now:"Left lobe, at 12 o'clock", clock:"12 o'clock", at:.50, next:"Cross to the right lobe at 12 o'clock.", why:'Left lobe is free. Contact stayed light.'},
+    {side:'left lobe', now:"Left lobe, at 12 o'clock", clock:"12 o'clock", at:.50, next:"Cross to the right lobe at 12 o'clock.", why:'Left lobe is free.'},
     {side:'right lobe', now:"Right lobe, at 12 o'clock", clock:"12 o'clock", at:.56, next:"Continue toward 3 o'clock.", why:'Same plane as the left side.'},
-    {side:'right lobe', now:"Right lobe, at 3 o'clock", clock:"3 o'clock", at:.74, next:'Finish the right lobe near the apex.', why:'Slow down: the sphincter limit is closer.'},
+    {side:'right lobe', now:"Right lobe, at 3 o'clock", clock:"3 o'clock", at:.74, next:'Finish the right lobe near the apex.', why:'Slow down: the limit is closer.'},
     {side:'right lobe', now:'Right lobe, near the apex', clock:"5 o'clock", at:.92, next:'Check for bleeding before moving on.', why:'Both lobes free after this step.'},
     {side:'done', now:'Both lobes free. Check for bleeding.', clock:"6 o'clock", at:1, next:null, why:''}
   ];
